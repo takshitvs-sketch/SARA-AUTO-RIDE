@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>SARA AUTO BOOKING</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+body{font-family: Georgia;margin:0;background:#fff;}
+.header{background:red;color:white;text-align:center;padding:20px;font-size:40px;font-weight:bold;position:relative;}
+.backBtn{position:absolute;top:10px;left:10px;background:white;color:black;padding:8px 15px;cursor:pointer;border-radius:3px;font-weight:bold;}
+.center{text-align:center;margin-top:30px;}
+.box{width:80%;margin:auto;background:#00145A;padding:20px;border-radius:4px;color:white;}
+.box input{width:90%;padding:10px;margin:8px;border:none;border-radius:3px;}
+.btn{display:block;width:60%;margin:30px auto;font-size:28px;background:#00FF00;padding:15px;border:none;cursor:pointer;font-weight:bold;}
+.footer{text-align:center;margin-top:40px;padding:20px;border-top:2px solid black;}
+.adminBtn{background:black;color:white;padding:10px 20px;margin-top:20px;cursor:pointer;}
+.hidden{display:none;}
+.adminBox{width:80%;margin:30px auto;background:black;color:white;padding:20px;border-radius:4px;}
+.scrollBox{width:90%;height:300px;background:black;color:white;padding:15px;overflow-y:scroll;border:2px solid white;}
+.smallBtn{background:black;color:white;padding:10px;margin:10px;cursor:pointer;border:2px solid white;}
+.rejectBtn{background:red;color:white;padding:5px 10px;margin-left:10px;cursor:pointer;border:none;border-radius:3px;}
+</style>
+</head>
+<body>
+
+<!-- PAGE 1 - HOME -->
+<div id="page1">
+    <div class="header">SARA AUTO BOOKING</div>
+    <div class="center">
+        <h1>WELCOME</h1>
+        <h3>TO SARA AUTO BOOKING</h3>
+        <h2>BOOK AND ENJOY YOUR RIDE</h2>
+    </div>
+    <div class="box">
+        <label>FULL NAME:</label><br>
+        <input id="name"><br>
+        <label>CONTACT NO:</label><br>
+        <input id="contact"><br>
+        <label>PICKUP LOCATION:</label><br>
+        <input id="pick"><br>
+        <label>DROP LOCATION:</label><br>
+        <input id="drop"><br>
+        <label>DATE:</label><br>
+        <input id="date" type="date"><br>
+        <label>TIME:</label><br>
+        <input id="time" type="time"><br>
+    </div>
+    <button class="btn" onclick="confirmBooking()">CONFIRM BOOKING</button>
+    <div class="center">
+        <button class="adminBtn" onclick="goAdmin()">ADMIN</button>
+    </div>
+    <div class="footer">
+        <h4>THANKS FOR VISITING US</h4>
+        CONTACT : 9884884205 <br>
+        MAIL : sarabook19@gmail.com
+    </div>
+</div>
+
+<!-- PAGE 2 - THANK YOU -->
+<div id="page2" class="hidden center">
+    <div class="backBtn" onclick="goHome()">RETURN</div>
+    <div style="background:#39FF00; padding:40px; margin:40px; font-size:30px;">
+        YOUR BOOKING IS CONFIRMED<br><br>
+        THANK YOU FOR VISITING AND BOOKING TO US<br><br>
+        <button style="background:black;color:white;padding:10px 20px;">
+            FOR QUERIES AND PAYMENT
+        </button><br><br>
+        <div style="background:white;padding:10px;font-size:25px;">
+            CALL -> 9884884205
+        </div>
+    </div>
+</div>
+
+<!-- PAGE 3 - ADMIN LOGIN -->
+<div id="adminLogin" class="hidden">
+    <div class="header">ADMIN LOGIN
+        <div class="backBtn" onclick="goHome()">RETURN</div>
+    </div>
+    <div class="adminBox">
+        <label>ENTER PASSWORD:</label><br>
+        <input id="adminPass" style="width:95%;padding:10px;"><br>
+    </div>
+    <div style="text-align:center;">
+        <button class="adminBtn" onclick="checkPass()">CONFIRM</button>
+    </div>
+</div>
+
+<!-- PAGE 4 - ADMIN PANEL -->
+<div id="adminPanel" class="hidden">
+    <div class="header">ADMIN LOGIN
+        <div class="backBtn" onclick="goAdminLogin()">RETURN</div>
+    </div>
+    <div class="adminBox">
+        <label>BOOKINGS :</label><br><br>
+        <div id="bookingList" class="scrollBox"></div>
+    </div>
+    <div class="center">
+        <button class="smallBtn" onclick="downloadPDF('week')">WEEKLY BOOKING DOWNLOAD</button>
+        <button class="smallBtn" onclick="downloadPDF('month')">MONTHLY BOOKING DOWNLOAD</button>
+        <button class="smallBtn" onclick="downloadPDF('year')">YEARLY BOOKING DOWNLOAD</button>
+    </div>
+</div>
+
+<script>
+const { jsPDF } = window.jspdf;
+
+// BOOKING
+function confirmBooking(){
+    let name = document.getElementById("name").value.trim();
+    let contact = document.getElementById("contact").value.trim();
+    let pick = document.getElementById("pick").value.trim();
+    let drop = document.getElementById("drop").value.trim();
+    let date = document.getElementById("date").value;
+    let time = document.getElementById("time").value;
+
+    if(!name || !contact || !pick || !drop || !date || !time){
+        alert("Please fill all details!");
+        return;
+    }
+
+    let data = {name, contact, pick, drop, date, time};
+    let arr = JSON.parse(localStorage.getItem("bookings") || "[]");
+    arr.push(data);
+    localStorage.setItem("bookings", JSON.stringify(arr));
+
+    document.getElementById("page1").style.display="none";
+    document.getElementById("page2").style.display="block";
+}
+
+function goHome(){
+    document.getElementById("page2").style.display="none";
+    document.getElementById("adminLogin").style.display="none";
+    document.getElementById("adminPanel").style.display="none";
+    document.getElementById("page1").style.display="block";
+}
+
+// ADMIN
+function goAdmin(){
+    document.getElementById("page1").style.display="none";
+    document.getElementById("adminLogin").style.display="block";
+}
+function goAdminLogin(){
+    document.getElementById("adminPanel").style.display="none";
+    document.getElementById("adminLogin").style.display="block";
+}
+
+function checkPass(){
+    if(document.getElementById("adminPass").value==="197523"){
+        document.getElementById("adminLogin").style.display="none";
+        loadBookings();
+        document.getElementById("adminPanel").style.display="block";
+    } else {alert("Wrong Password");}
+}
+
+// LOAD BOOKINGS
+function loadBookings(){
+    let list = JSON.parse(localStorage.getItem("bookings") || "[]");
+    let box = document.getElementById("bookingList");
+    box.innerHTML="";
+    list.forEach((b,i)=>{
+        box.innerHTML+=`
+        <div>
+            <b>${i+1})</b> Name: ${b.name} | Contact: ${b.contact} | Pickup: ${b.pick} -> ${b.drop} | Date: ${b.date} | Time: ${b.time}
+            <button class="rejectBtn" onclick="rejectBooking(${i})">REJECT</button>
+        </div><hr>`;
+    });
+}
+
+// REJECT BOOKING
+function rejectBooking(index){
+    let list = JSON.parse(localStorage.getItem("bookings") || "[]");
+    if(confirm("Do you want to reject this booking?")){
+        list.splice(index,1);
+        localStorage.setItem("bookings", JSON.stringify(list));
+        loadBookings();
+    }
+}
+
+// PDF DOWNLOAD
+function downloadPDF(type){
+    let list = JSON.parse(localStorage.getItem("bookings") || "[]");
+    if(list.length===0){alert("No bookings yet!"); return;}
+    let doc = new jsPDF();
+    doc.setFontSize(16);
+    doc.text(`SARA AUTO BOOKING - ${type.toUpperCase()} REPORT`,10,10);
+    let y = 20;
+    list.forEach((b,i)=>{
+        doc.text(`${i+1}) ${b.name} | ${b.contact} | ${b.pick} -> ${b.drop} | ${b.date} ${b.time}`,10,y);
+        y+=10;
+        if(y>280){doc.addPage(); y=20;}
+    });
+    doc.save(`booking_${type}.pdf`);
+}
+</script>
+</body>
+</html>
